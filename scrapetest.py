@@ -23,25 +23,35 @@ table = soup.find('table', attrs={'class':'tableBody'})
 def franchise_2011_identification(text):
     if 'Scott' in text:
         return 'Scott & James'
-    if 'Doug' in text:
+    elif 'Doug' in text:
         return 'Doug'
-    if 'godlegend' in text:
+    elif re.search('\bteamId=3\b', url) is not None:
+        return 'Doug'
+    elif 'godlegend' in text:
         return 'Crockett'
-    if 'Doyle' in text:
+    elif 'Doyle' in text:
         return 'Garner & Doyle'
-    if 'Fischer' in text:
+    elif 'Fischer' in text:
         return 'Kfish'
-    if 'Kyle' in text:
+    elif 'Kyle' in text:
         return 'Kyle'
-    if 'john gaudet' in text:
+    elif 'john gaudet' in text:
         return 'Gaudet & Cameron'
-    if 'Pohlig' in text:
+    elif 'Pohlig' in text:
         return 'Gilhop & MJ'
-    if 'Mitch' in text:
+    elif 'Mitch' in text:
         return 'Mitch'
-    if 'Ross' or 'teamId=1&amp' in text:
+    elif 'Ross' in text:
+        return 'Matt & Ross'
+    elif re.search('\bteamId=1\b', url) is not None:
         return 'Matt & Ross'
     
+def season_identification(text):
+    if 'seasonId=2011&amp' in text:
+        return 2011
+def week_identification(text):
+    if 'scoringPeriodId=2&amp' in text: 
+        return 2
 
 specify_week = 3  #2 starts us at week 1; so add 1 to every week for this index
 cells = []
@@ -50,20 +60,21 @@ for table_row in table.findAll("tr"):
 
 all_data_string = str(cells[specify_week][2])
 all_numbers_in_string = re.findall(r'\d{1,5}', all_data_string) #good for week, season, homefranchise#
-scores = re.findall(r'[0-9]*[.][0-9]', all_data_string)
+scores = re.findall(r'[0-9]*[\.?][-][0-9]*', all_data_string) #'[0-9]*[.][0-9]' #^[^-]*[^ -] is everything up to the hyphen
 entry_number = 1
 
 #for the db
 matchup_id = entry_number #increment this somehow
-franchise = franchise_2011_identification(str(cells[specify_week][2]))
-season = all_numbers_in_string[4]
-week = all_numbers_in_string[3]
-points_scored = scores[0]
-points_against = scores[1] # !! list index out of range - these indices must be changing by the week
-opponent = franchise_2011_identification(str(cells[specify_week][-1]))
-week_total = float(points_scored) + float(points_against) 
+franchise = franchise_2011_identification(url)
+season = season_identification(all_data_string)   #all_numbers_in_string[4]
+week = week_identification(all_data_string)
+points_scored = ''.join(re.findall(r'(?<=W\s|L\s|T\s)[0-9]*[.]?[0-9]', all_data_string)) #the regex outputs a list that needs to be converted to a string with .join
+points_against = ''.join(re.findall(r'(?<=-)[0-9]*[.]?[0-9]', all_data_string))
+opponent = franchise_2011_identification(str(cells[specify_week]))
+week_total = float(points_scored) + float(points_against) #the points have been converted from lists to strings within their own variables, but need to be converted to floats in order to manipulate them mathematically
 
 #assign home team by number from all_numbers_string. if 1 then Matt & Ross, but can change dictionary by the season 
 
-print(scores)
-#print(franchise, season, week, points_scored, points_against, opponent, week_total)
+#print(cells[specify_week])
+
+print(franchise, season, week, points_scored, points_against, opponent, week_total)
