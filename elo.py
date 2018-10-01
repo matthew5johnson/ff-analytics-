@@ -2,7 +2,7 @@ week = 15
 season = 2015
 
 team = 9
-
+## Add conditional for week 14 and week 15 teams
 for team in range(9,10):
     def franchise_converter(number, season):
         if number == 1:
