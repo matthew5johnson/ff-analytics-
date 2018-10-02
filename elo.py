@@ -60,6 +60,8 @@ for team in range(9,10):
     cur.execute("SELECT elo FROM matchuptable WHERE franchise=%s AND season=%s AND week=%s;", (home_franchise, sqlseason, last_week))
     # elo of the home team from the prior week
     home_elo_tuple = cur.fetchall()
+    if home_elo_tuple == 'NULL':
+        cur.execute("SELECT elo FROM matchuptable WHERE franchise=%s AND season=%s AND week=%s;", (home_franchise, sqlseason, (last_week - 1))
     #home_elo = float(home_elo_tuple[0][0])  
     con.commit()    
     
