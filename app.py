@@ -8,6 +8,8 @@
 # bs4==0.0.1
 # requests==2.19.1
 
+# Add envvars here
+
 import os
 import json
 import sys
